@@ -1,0 +1,12 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "npm audit": true,
+        "ConvertFrom-Json": true,
+        "Get-Member": true,
+        "ForEach-Object": true,
+        "/^cd \"c:\\\\Users\\\\desir\\\\code\\\\ServiceDawg\\\\server\" ; npx ts-node-dev --respawn --transpile-only src/index\\.ts$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}

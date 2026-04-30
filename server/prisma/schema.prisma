@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  id               String    @id @default(cuid())
+  name             String
+  email            String?
+  phone            String?
+  instagram        String?
+  facebook         String?
+  preferredContact String?
+  notes            String?
+  isVip            Boolean   @default(false)
+  orderCount       Int       @default(0)
+  lifetimeValue    Float     @default(0)
+  tags             String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  projects         Project[]
+  orders           Order[]
+  emails           Email[]
+  messages         Message[]
+}
+
+model Project {
+  id          String     @id @default(cuid())
+  title       String
+  type        String     @default("commission")
+  status      String     @default("inquiry")
+  deadline    DateTime?
+  price       Float?
+  depositPaid Float      @default(0)
+  notes       String?
+  customerId  String?
+  customer    Customer?  @relation(fields: [customerId], references: [id])
+  tasks       Task[]
+  shipments   Shipment[]
+  emails      Email[]
+  messages    Message[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Task {
+  id        String    @id @default(cuid())
+  title     String
+  dueDate   DateTime?
+  priority  String    @default("medium")
+  done      Boolean   @default(false)
+  projectId String?
+  project   Project?  @relation(fields: [projectId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Shipment {
+  id             String    @id @default(cuid())
+  carrier        String?
+  trackingNumber String?
+  shipDate       DateTime?
+  deliveredDate  DateTime?
+  status         String    @default("pending")
+  recipientName  String?
+  address        String?
+  rawLabelText   String?
+  projectId      String?
+  project        Project?  @relation(fields: [projectId], references: [id])
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model Order {
+  id            String    @id @default(cuid())
+  source        String    @default("shopify")
+  externalId    String?
+  items         String?
+  total         Float?
+  status        String    @default("pending")
+  paymentStatus String    @default("unpaid")
+  customerId    String?
+  customer      Customer? @relation(fields: [customerId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Email {
+  id         String    @id @default(cuid())
+  gmailId    String?   @unique
+  subject    String?
+  from       String?
+  body       String?
+  receivedAt DateTime?
+  isInquiry  Boolean   @default(false)
+  isRead     Boolean   @default(false)
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  projectId  String?
+  project    Project?  @relation(fields: [projectId], references: [id])
+  createdAt  DateTime  @default(now())
+}
+
+model Message {
+  id         String    @id @default(cuid())
+  source     String    @default("facebook")
+  externalId String?   @unique
+  senderId   String?
+  senderName String?
+  body       String?
+  receivedAt DateTime?
+  isInquiry  Boolean   @default(false)
+  isRead     Boolean   @default(false)
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  projectId  String?
+  project    Project?  @relation(fields: [projectId], references: [id])
+  createdAt  DateTime  @default(now())
+}
