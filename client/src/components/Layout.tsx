@@ -67,7 +67,7 @@ export default function Layout() {
           </div>
         </div>
 
-        <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+        <nav aria-label="Main navigation" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
           {NAV_ITEMS.map((item) => (
             <NavLink
               key={item.to}
@@ -119,6 +119,7 @@ export default function Layout() {
 
       {/* Bottom nav — mobile */}
       <nav
+        aria-label="Mobile navigation"
         className="bottom-nav-mobile"
         style={{
           position: 'fixed',

@@ -93,6 +93,7 @@ export default function Settings() {
             className={`btn ${simpleMode ? 'btn-primary' : 'btn-ghost'}`}
             style={{ flex: 1, minHeight: '56px', flexDirection: 'column', gap: '0.2rem' }}
             onClick={() => { if (!simpleMode) toggleSimpleMode() }}
+            aria-pressed={simpleMode}
           >
             <span style={{ fontSize: '1.4em' }}>🔲</span>
             <span>Simple{simpleMode ? ' ✓' : ''}</span>
@@ -102,6 +103,7 @@ export default function Settings() {
             className={`btn ${!simpleMode ? 'btn-primary' : 'btn-ghost'}`}
             style={{ flex: 1, minHeight: '56px', flexDirection: 'column', gap: '0.2rem' }}
             onClick={() => { if (simpleMode) toggleSimpleMode() }}
+            aria-pressed={!simpleMode}
           >
             <span style={{ fontSize: '1.4em' }}>📋</span>
             <span>Full{!simpleMode ? ' ✓' : ''}</span>
@@ -125,6 +127,7 @@ export default function Settings() {
             <button
               key={t.value}
               onClick={() => setTheme(t.value)}
+              aria-pressed={theme === t.value}
               style={{
                 border: `3px solid ${theme === t.value ? 'var(--accent)' : 'var(--border)'}`,
                 borderRadius: '0.5rem',
@@ -158,6 +161,7 @@ export default function Settings() {
               key={f.value}
               className={`btn ${fontSize === f.value ? 'btn-primary' : 'btn-ghost'}`}
               onClick={() => setFontSize(f.value)}
+              aria-pressed={fontSize === f.value}
               style={{ justifyContent: 'flex-start', gap: '0.75rem' }}
             >
               {fontSize === f.value && <span>✓</span>}
@@ -176,12 +180,14 @@ export default function Settings() {
           <button
             className={`btn ${fontFamily === 'default' ? 'btn-primary' : 'btn-ghost'}`}
             onClick={() => setFontFamily('default' as FontFamily)}
+            aria-pressed={fontFamily === 'default'}
           >
             {fontFamily === 'default' ? '✓ ' : ''}Standard Font
           </button>
           <button
             className={`btn ${fontFamily === 'dyslexic' ? 'btn-primary' : 'btn-ghost'}`}
             onClick={() => setFontFamily('dyslexic' as FontFamily)}
+            aria-pressed={fontFamily === 'dyslexic'}
             style={{ fontFamily: "'Comic Sans MS', cursive" }}
           >
             {fontFamily === 'dyslexic' ? '✓ ' : ''}Dyslexia-Friendly Font
