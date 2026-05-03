@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { api, Project, Customer } from '../api'
 import Modal from '../components/Modal'
+import Toast from '../components/Toast'
+import ConfirmDialog from '../components/ConfirmDialog'
 
 const STATUS_OPTIONS = ['inquiry', 'quoted', 'paid', 'in_progress', 'awaiting_approval', 'shipped', 'complete']
 const TYPE_OPTIONS = ['pet_portrait', 'commission', 'holiday_card', 'landscape', 'other']
@@ -37,6 +39,8 @@ export default function Projects() {
   const [form, setForm] = useState<Partial<Project>>(blank())
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [toast, setToast] = useState('')
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
   const [searchParams, setSearchParams] = useSearchParams()
 
   useEffect(() => {
@@ -101,6 +105,7 @@ export default function Projects() {
       }
       setModalOpen(false)
       load()
+      setToast(editing ? 'Project updated!' : 'Project created!')
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Save failed')
     } finally {
@@ -108,9 +113,11 @@ export default function Projects() {
     }
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Delete this project?')) return
-    await api.deleteProject(id).catch(() => {})
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    await api.deleteProject(deleteTarget).catch(() => {})
+    setDeleteTarget(null)
+    setToast('Project deleted.')
     load()
   }
 
@@ -156,10 +163,15 @@ export default function Projects() {
                   <span className={`badge badge-${p.status}`}>{STATUS_LABELS[p.status] || p.status}</span>
                 </div>
                 {p.customer && (
-                  <div style={{ color: 'var(--text-secondary)', fontSize: '0.9em', marginTop: '0.3rem' }}>
+                  <div style={{ color: 'var(--text-secondary)', fontSize: '0.9em', marginTop: '0.3rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                     👤 {p.customer.name}
                     {p.customer.email && (
                       <span style={{ color: 'var(--text-muted)', marginLeft: '0.5rem' }}>{p.customer.email}</span>
+                    )}
+                    {p.customer.preferredContact && (
+                      <span style={{ background: 'var(--accent)', color: 'var(--btn-primary-text, #fff)', borderRadius: '4px', padding: '0 0.4rem', fontSize: '0.8em', fontWeight: 600 }}>
+                        {p.customer.preferredContact === 'email' ? '📧' : p.customer.preferredContact === 'phone' ? '📞' : p.customer.preferredContact === 'messenger' ? '💬' : p.customer.preferredContact === 'instagram' ? '📸' : '✉️'} {p.customer.preferredContact}
+                      </span>
                     )}
                   </div>
                 )}
@@ -179,7 +191,7 @@ export default function Projects() {
                 <button className="btn btn-ghost" style={{ minHeight: '40px', padding: '0.4rem 0.9rem' }} onClick={() => openEdit(p)}>
                   Edit
                 </button>
-                <button className="btn btn-danger" style={{ minHeight: '40px', padding: '0.4rem 0.9rem' }} onClick={() => handleDelete(p.id)}>
+                <button className="btn btn-danger" style={{ minHeight: '40px', padding: '0.4rem 0.9rem' }} onClick={() => setDeleteTarget(p.id)}>
                   🗑 Delete
                 </button>
               </div>
@@ -261,6 +273,14 @@ export default function Projects() {
           </button>
         </div>
       </Modal>
+
+      <ConfirmDialog
+        isOpen={!!deleteTarget}
+        message="Delete this project? This cannot be undone."
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
+      {toast && <Toast message={toast} onDone={() => setToast('')} />}
     </div>
   )
 }

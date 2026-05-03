@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { api, Shipment, Project } from '../api'
 import Modal from '../components/Modal'
+import Toast from '../components/Toast'
+import ConfirmDialog from '../components/ConfirmDialog'
 
 // Detect carrier from tracking number format
 function detectCarrier(tn: string): string {
@@ -49,6 +51,8 @@ export default function Shipments() {
   const [form, setForm] = useState<Partial<Shipment>>(blank())
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [toast, setToast] = useState('')
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
   const [scanning, setScanning] = useState(false)
   const [ocrWarning, setOcrWarning] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
@@ -97,6 +101,7 @@ export default function Shipments() {
       }
       setModalOpen(false)
       load()
+      setToast(editing ? 'Shipment updated!' : 'Shipment added!')
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Save failed')
     } finally {
@@ -104,9 +109,11 @@ export default function Shipments() {
     }
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Delete this shipment?')) return
-    await api.deleteShipment(id).catch(() => {})
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    await api.deleteShipment(deleteTarget).catch(() => {})
+    setDeleteTarget(null)
+    setToast('Shipment deleted.')
     load()
   }
 
@@ -263,7 +270,7 @@ export default function Shipments() {
                   <button className="btn btn-ghost" style={{ minHeight: '40px', padding: '0.4rem 0.9rem' }} onClick={() => openEdit(s)}>
                     Edit
                   </button>
-                  <button className="btn btn-danger" style={{ minHeight: '40px', padding: '0.4rem 0.9rem' }} onClick={() => handleDelete(s.id)}>
+                  <button className="btn btn-danger" style={{ minHeight: '40px', padding: '0.4rem 0.9rem' }} onClick={() => setDeleteTarget(s.id)}>
                     🗑 Delete
                   </button>
                 </div>
@@ -362,6 +369,14 @@ export default function Shipments() {
           </button>
         </div>
       </Modal>
+
+      <ConfirmDialog
+        isOpen={!!deleteTarget}
+        message="Delete this shipment? This cannot be undone."
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
+      {toast && <Toast message={toast} onDone={() => setToast('')} />}
     </div>
   )
 }

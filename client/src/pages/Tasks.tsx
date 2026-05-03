@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { api, Task, Project } from '../api'
 import Modal from '../components/Modal'
+import Toast from '../components/Toast'
+import ConfirmDialog from '../components/ConfirmDialog'
 
 const PRIORITY_OPTIONS = ['low', 'medium', 'high']
 
@@ -21,6 +23,8 @@ export default function Tasks() {
   const [form, setForm] = useState<Partial<Task>>(blank())
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [toast, setToast] = useState('')
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
 
   const load = () => {
     setLoading(true)
@@ -71,6 +75,7 @@ export default function Tasks() {
       }
       setModalOpen(false)
       load()
+      setToast(editing ? 'Task updated!' : 'Task added!')
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Save failed')
     } finally {
@@ -78,9 +83,11 @@ export default function Tasks() {
     }
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Delete this task?')) return
-    await api.deleteTask(id).catch(() => {})
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    await api.deleteTask(deleteTarget).catch(() => {})
+    setDeleteTarget(null)
+    setToast('Task deleted.')
     load()
   }
 
@@ -180,7 +187,7 @@ export default function Tasks() {
                 <button className="btn btn-ghost" style={{ minHeight: '40px', padding: '0.4rem 0.9rem' }} onClick={() => openEdit(t)}>
                   Edit
                 </button>
-                <button className="btn btn-danger" style={{ minHeight: '40px', padding: '0.4rem 0.9rem' }} onClick={() => handleDelete(t.id)}>
+                <button className="btn btn-danger" style={{ minHeight: '40px', padding: '0.4rem 0.9rem' }} onClick={() => setDeleteTarget(t.id)}>
                   🗑 Delete
                 </button>
               </div>
@@ -231,6 +238,14 @@ export default function Tasks() {
           </button>
         </div>
       </Modal>
+
+      <ConfirmDialog
+        isOpen={!!deleteTarget}
+        message="Delete this task? This cannot be undone."
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
+      {toast && <Toast message={toast} onDone={() => setToast('')} />}
     </div>
   )
 }

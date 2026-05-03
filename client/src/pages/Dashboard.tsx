@@ -55,7 +55,8 @@ function SimpleModeDashboard() {
 
 function FullDashboard() {
   const [projects, setProjects] = useState<Project[]>([])
-  const [tasks, setTasks] = useState<Task[]>([])
+  const [overdueTasks, setOverdueTasks] = useState<Task[]>([])
+  const [todayTasks, setTodayTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
 
@@ -63,7 +64,16 @@ function FullDashboard() {
     Promise.all([api.getProjects(), api.getTasks({ done: 'false' })])
       .then(([p, t]) => {
         setProjects(p.filter((x) => x.status !== 'complete').slice(0, 8))
-        setTasks(t.filter((task) => task.dueDate && new Date(task.dueDate) < new Date()))
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        const tomorrow = new Date(today)
+        tomorrow.setDate(today.getDate() + 1)
+        setOverdueTasks(t.filter((task) => task.dueDate && new Date(task.dueDate) < today))
+        setTodayTasks(t.filter((task) => {
+          if (!task.dueDate) return false
+          const d = new Date(task.dueDate)
+          return d >= today && d < tomorrow
+        }))
       })
       .catch(() => {})
       .finally(() => setLoading(false))
@@ -76,7 +86,7 @@ function FullDashboard() {
   return (
     <div>
       <h2 style={{ color: 'var(--text-primary)', marginBottom: '2rem' }}>Dashboard</h2>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
         {/* Active Projects */}
         <div>
           <h3
@@ -127,22 +137,22 @@ function FullDashboard() {
         <div>
           <h3
             style={{
-              color: tasks.length > 0 ? 'var(--danger)' : 'var(--text-secondary)',
+              color: overdueTasks.length > 0 ? 'var(--danger)' : 'var(--text-secondary)',
               marginBottom: '1rem',
               fontSize: '0.85em',
               textTransform: 'uppercase',
               letterSpacing: '0.06em',
             }}
           >
-            Overdue Tasks ({tasks.length})
+            Overdue Tasks ({overdueTasks.length})
           </h3>
-          {tasks.length === 0 ? (
+          {overdueTasks.length === 0 ? (
             <div className="card" style={{ color: 'var(--success)', fontWeight: 600 }}>
               All caught up! 🎉
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {tasks.map((t) => (
+              {overdueTasks.map((t) => (
                 <div
                   key={t.id}
                   className="card"
@@ -155,6 +165,45 @@ function FullDashboard() {
                   )}
                   <div style={{ color: 'var(--danger)', fontSize: '0.82em', marginTop: '0.25rem' }}>
                     Was due {new Date(t.dueDate!).toLocaleDateString()}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Today's Tasks */}
+        <div>
+          <h3
+            style={{
+              color: todayTasks.length > 0 ? 'var(--accent)' : 'var(--text-secondary)',
+              marginBottom: '1rem',
+              fontSize: '0.85em',
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+            }}
+          >
+            Today's Tasks ({todayTasks.length})
+          </h3>
+          {todayTasks.length === 0 ? (
+            <div className="card" style={{ color: 'var(--text-muted)' }}>
+              Nothing due today
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {todayTasks.map((t) => (
+                <div
+                  key={t.id}
+                  className="card"
+                  onClick={() => navigate('/tasks')}
+                  style={{ cursor: 'pointer', borderColor: 'var(--accent)' }}
+                >
+                  <div style={{ fontWeight: 600 }}>{t.title}</div>
+                  {t.project && (
+                    <div style={{ color: 'var(--text-muted)', fontSize: '0.85em' }}>{t.project.title}</div>
+                  )}
+                  <div style={{ color: 'var(--accent)', fontSize: '0.82em', marginTop: '0.25rem' }}>
+                    Due today
                   </div>
                 </div>
               ))}

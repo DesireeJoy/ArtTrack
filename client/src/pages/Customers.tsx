@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { api, Customer } from '../api'
 import Modal from '../components/Modal'
+import Toast from '../components/Toast'
+import ConfirmDialog from '../components/ConfirmDialog'
 
 const CONTACT_OPTIONS = ['email', 'phone', 'messenger', 'instagram']
 
@@ -23,6 +25,8 @@ export default function Customers() {
   const [form, setForm] = useState<Partial<Customer>>(blank())
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [toast, setToast] = useState('')
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
 
   const load = () => {
     setLoading(true)
@@ -68,6 +72,7 @@ export default function Customers() {
       }
       setModalOpen(false)
       load()
+      setToast(editing ? 'Customer updated!' : 'Customer saved!')
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Save failed')
     } finally {
@@ -75,9 +80,11 @@ export default function Customers() {
     }
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Delete this customer? Their projects will remain.')) return
-    await api.deleteCustomer(id).catch(() => {})
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    await api.deleteCustomer(deleteTarget).catch(() => {})
+    setDeleteTarget(null)
+    setToast('Customer deleted.')
     load()
   }
 
@@ -178,7 +185,7 @@ export default function Customers() {
                 <button className="btn btn-ghost" style={{ minHeight: '40px', padding: '0.4rem 0.9rem' }} onClick={() => openEdit(c)}>
                   Edit
                 </button>
-                <button className="btn btn-danger" style={{ minHeight: '40px', padding: '0.4rem 0.9rem' }} onClick={() => handleDelete(c.id)}>
+                <button className="btn btn-danger" style={{ minHeight: '40px', padding: '0.4rem 0.9rem' }} onClick={() => setDeleteTarget(c.id)}>
                   🗑 Delete
                 </button>
               </div>
@@ -245,6 +252,14 @@ export default function Customers() {
           </button>
         </div>
       </Modal>
+
+      <ConfirmDialog
+        isOpen={!!deleteTarget}
+        message="Delete this customer? Their projects will remain."
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
+      {toast && <Toast message={toast} onDone={() => setToast('')} />}
     </div>
   )
 }
