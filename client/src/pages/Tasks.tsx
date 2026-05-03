@@ -181,7 +181,7 @@ export default function Tasks() {
                   Edit
                 </button>
                 <button className="btn btn-danger" style={{ minHeight: '40px', padding: '0.4rem 0.9rem' }} onClick={() => handleDelete(t.id)}>
-                  🗑
+                  🗑 Delete
                 </button>
               </div>
             </div>

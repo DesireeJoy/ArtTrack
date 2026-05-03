@@ -9,7 +9,7 @@ function SimpleModeDashboard() {
   const tiles = [
     { icon: '🎨', label: 'New Job', sub: 'Start a commission', color: 'var(--accent)', action: () => navigate('/projects?new=1') },
     { icon: '✅', label: 'My Tasks', sub: 'See what to do', color: 'var(--success)', action: () => navigate('/tasks') },
-    { icon: '📬', label: 'Messages', sub: 'Gmail & Messenger', color: 'var(--info)', action: () => navigate('/dashboard') },
+    { icon: '📬', label: 'Messages', sub: 'Gmail & Messenger', color: 'var(--info)', action: () => navigate('/inbox') },
     { icon: '📦', label: 'Shipping', sub: 'Track packages', color: 'var(--warning)', action: () => navigate('/shipping') },
   ]
 

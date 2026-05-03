@@ -180,7 +180,7 @@ export default function Projects() {
                   Edit
                 </button>
                 <button className="btn btn-danger" style={{ minHeight: '40px', padding: '0.4rem 0.9rem' }} onClick={() => handleDelete(p.id)}>
-                  🗑
+                  🗑 Delete
                 </button>
               </div>
             </div>

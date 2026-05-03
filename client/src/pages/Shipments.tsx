@@ -229,11 +229,31 @@ export default function Shipments() {
                   <div style={{ color: 'var(--text-muted)', fontSize: '0.82em', marginTop: '0.4rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
                     {s.carrier && <span>🚚 {s.carrier}</span>}
                     {s.trackingNumber && url ? (
-                      <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)', textDecoration: 'none', fontFamily: 'monospace' }}>
-                        {s.trackingNumber} 🔗
-                      </a>
+                      <>
+                        <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)', textDecoration: 'none', fontFamily: 'monospace' }}>
+                          {s.trackingNumber} 🔗
+                        </a>
+                        <button
+                          onClick={() => navigator.clipboard.writeText(s.trackingNumber!)}
+                          className="btn btn-ghost"
+                          style={{ minHeight: '28px', padding: '0.1rem 0.5rem', fontSize: '0.78em' }}
+                          title="Copy tracking number"
+                        >
+                          📋 Copy
+                        </button>
+                      </>
                     ) : s.trackingNumber ? (
-                      <span style={{ fontFamily: 'monospace' }}>{s.trackingNumber}</span>
+                      <>
+                        <span style={{ fontFamily: 'monospace' }}>{s.trackingNumber}</span>
+                        <button
+                          onClick={() => navigator.clipboard.writeText(s.trackingNumber!)}
+                          className="btn btn-ghost"
+                          style={{ minHeight: '28px', padding: '0.1rem 0.5rem', fontSize: '0.78em' }}
+                          title="Copy tracking number"
+                        >
+                          📋 Copy
+                        </button>
+                      </>
                     ) : null}
                     {s.project && <span>🎨 {s.project.title}</span>}
                     {s.shipDate && <span>📅 {new Date(s.shipDate).toLocaleDateString()}</span>}
@@ -244,7 +264,7 @@ export default function Shipments() {
                     Edit
                   </button>
                   <button className="btn btn-danger" style={{ minHeight: '40px', padding: '0.4rem 0.9rem' }} onClick={() => handleDelete(s.id)}>
-                    🗑
+                    🗑 Delete
                   </button>
                 </div>
               </div>

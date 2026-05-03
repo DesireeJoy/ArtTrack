@@ -179,7 +179,7 @@ export default function Customers() {
                   Edit
                 </button>
                 <button className="btn btn-danger" style={{ minHeight: '40px', padding: '0.4rem 0.9rem' }} onClick={() => handleDelete(c.id)}>
-                  🗑
+                  🗑 Delete
                 </button>
               </div>
             </div>
