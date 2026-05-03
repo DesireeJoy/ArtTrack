@@ -3,6 +3,7 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import { execSync } from 'child_process'
 import path from 'path'
+import os from 'os'
 import customersRouter from './routes/customers'
 import projectsRouter from './routes/projects'
 import tasksRouter from './routes/tasks'
@@ -42,6 +43,16 @@ app.get('/api/health', (_req, res) => {
 })
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`ArtTrack server running on http://localhost:${PORT}`)
-  console.log(`Also reachable on local network at port ${PORT}`)
+  const localIp = Object.values(os.networkInterfaces())
+    .flat()
+    .find((iface) => iface?.family === 'IPv4' && !iface.internal)?.address ?? 'unknown'
+
+  console.log('')
+  console.log('╔══════════════════════════════════════════╗')
+  console.log('║           ArtTrack is running!           ║')
+  console.log('╠══════════════════════════════════════════╣')
+  console.log(`║  Your computer:  http://localhost:5173   ║`)
+  console.log(`║  Alisa's device: http://${localIp}:5173  ║`)
+  console.log('╚══════════════════════════════════════════╝')
+  console.log('')
 })
